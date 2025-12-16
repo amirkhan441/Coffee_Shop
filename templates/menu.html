@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☕ Coffee Menu</h1>
+            <p class="subtitle">Freshly brewed, lovingly served</p>
+        </header>
+
+        <ul class="menu-grid">
+            {% for coffee in menu %}
+            <li class="menu-item">
+                <div class="item-header">
+                    <span class="item-name">{{ coffee.name }}</span>
+                    <span class="item-price">${{ coffee.price }}</span>
+                </div>
+                <a href="/add/{{ loop.index0 }}" class="add-btn">Add to Order</a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="checkout-section">
+            <div class="total">
+                <span class="total-label">Order Total</span>
+                ${{ order.total() }}
+            </div>
+            <a href="/checkout" class="checkout-btn">Proceed to Checkout →</a>
+        </div>
+    </div>
+</body>
+</html>
