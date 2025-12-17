@@ -170,3 +170,30 @@ h1 {
         font-size: 2em;
     }
 }
+
+/* Order History Button */
+.history-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #6b4423 0%, #4a2c1a 100%);
+    color: #d4a574;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(212, 165, 116, 0.4);
+}
+
+.history-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+    background: linear-gradient(135deg, #7d5029 0%, #5a3820 100%);
+    border-color: #d4a574;
+}
+
+.history-btn:active {
+    transform: scale(0.98);
+}

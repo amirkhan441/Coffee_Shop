@@ -11,6 +11,7 @@
         <header>
             <h1>☕ Coffee Menu</h1>
             <p class="subtitle">Freshly brewed, lovingly served</p>
+            <a href="/orders" class="history-btn">📋 Order History</a>
         </header>
 
         <ul class="menu-grid">
@@ -20,7 +21,7 @@
                     <span class="item-name">{{ coffee.name }}</span>
                     <span class="item-price">${{ coffee.price }}</span>
                 </div>
-                <a href="/add/{{ loop.index0 }}" class="add-btn">Add to Order</a>
+                <a href="/add/{{ coffee.id }}" class="add-btn">Add to Order</a>
             </li>
             {% endfor %}
         </ul>

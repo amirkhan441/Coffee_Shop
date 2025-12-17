@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Coffee Shop</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .orders-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .orders-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .orders-list {
+            list-style: none;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .order-id {
+            font-size: 1.5em;
+            color: #d4a574;
+            font-weight: 600;
+        }
+
+        .order-date {
+            color: #e8d5c4;
+            font-size: 0.9em;
+        }
+
+        .order-items {
+            margin: 20px 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            color: #e8d5c4;
+        }
+
+        .order-total {
+            text-align: right;
+            font-size: 1.8em;
+            color: #f4d6a5;
+            font-weight: 700;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #d4a574 0%, #b8945f 100%);
+            color: #2c1810;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(212, 165, 116, 0.5);
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: #e8d5c4;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="orders-container">
+        <header class="orders-header">
+            <h1>📋 Order History</h1>
+            <p class="subtitle">Your past coffee orders</p>
+        </header>
+
+        {% if orders %}
+        <ul class="orders-list">
+            {% for order in orders %}
+            <li class="order-card">
+                <div class="order-header">
+                    <span class="order-id">Order #{{ order.id }}</span>
+                    <span class="order-date">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                </div>
+                
+                <div class="order-items">
+                    {% for item in order.items %}
+                    <div class="order-item">
+                        <span>{{ item.coffee.name }} × {{ item.quantity }}</span>
+                        <span>${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="order-total">
+                    Total: ${{ "%.2f"|format(order.total) }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="no-orders">
+            <p>No orders yet. Start by ordering some delicious coffee! ☕</p>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center;">
+            <a href="/" class="back-link">← Back to Menu</a>
+        </div>
+    </div>
+</body>
+</html>
