@@ -23,6 +23,61 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# DATABASE INITIALIZATION ROUTE (For Render deployment)
+@app.route("/init-database-secret-xyz-123")
+def init_database():
+    try:
+        # Drop all old tables
+        db.drop_all()
+        print("✅ Old tables dropped")
+        
+        # Create new tables with all columns
+        db.create_all()
+        print("✅ New tables created")
+        
+        # Add sample coffees
+        if Coffee.query.count() == 0:
+            sample_coffees = [
+                Coffee(name="Espresso", price=2.5, description="Strong and bold", category="Hot", in_stock=True),
+                Coffee(name="Latte", price=3.5, description="Smooth and creamy", category="Hot", in_stock=True),
+                Coffee(name="Cappuccino", price=3.0, description="Classic Italian", category="Hot", in_stock=True),
+                Coffee(name="Mocha", price=4.0, description="Chocolate delight", category="Hot", in_stock=True),
+                Coffee(name="Americano", price=2.8, description="Bold and simple", category="Hot", in_stock=True),
+                Coffee(name="Macchiato", price=3.2, description="Espresso with milk", category="Hot", in_stock=True),
+                Coffee(name="Cold Brew", price=4.5, description="Smooth cold coffee", category="Cold", in_stock=True),
+                Coffee(name="Iced Latte", price=4.0, description="Refreshing iced latte", category="Cold", in_stock=True)
+            ]
+            db.session.bulk_save_objects(sample_coffees)
+            db.session.commit()
+            print("✅ Sample data added")
+        
+        total_coffees = Coffee.query.count()
+        total_users = User.query.count()
+        
+        return f"""
+        <html>
+        <body style="font-family: Arial; background: #2c1810; color: #d4a574; padding: 50px; text-align: center;">
+            <h1>✅ Database Initialized Successfully!</h1>
+            <p style="font-size: 1.5em;">Tables Created: users, coffees, cart_items, orders, order_items</p>
+            <p style="font-size: 1.2em;">Total Coffees: {total_coffees}</p>
+            <p style="font-size: 1.2em;">Total Users: {total_users}</p>
+            <br>
+            <a href="/" style="background: #d4a574; color: #2c1810; padding: 15px 30px; text-decoration: none; border-radius: 10px; font-weight: bold;">Go to Home Page</a>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"""
+        <html>
+        <body style="font-family: Arial; background: #2c1810; color: #ff6b6b; padding: 50px;">
+            <h1>❌ Error Occurred</h1>
+            <p style="font-size: 1.2em;">{str(e)}</p>
+            <a href="/" style="color: #d4a574;">Try Again</a>
+        </body>
+        </html>
+        """
+
+
 # Home/Menu Page
 @app.route("/")
 def index():
@@ -229,23 +284,27 @@ def view_orders():
 @app.before_request
 def init_db():
     if not hasattr(app, '_db_initialized'):
-        db.create_all()
-        
-        # Add sample coffees if database is empty
-        if Coffee.query.count() == 0:
-            sample_coffees = [
-                Coffee(name="Espresso", price=2.5, description="Strong and bold", category="Hot"),
-                Coffee(name="Latte", price=3.5, description="Smooth and creamy", category="Hot"),
-                Coffee(name="Cappuccino", price=3.0, description="Classic Italian coffee", category="Hot"),
-                Coffee(name="Mocha", price=4.0, description="Chocolate lover's delight", category="Hot"),
-                Coffee(name="Americano", price=2.8, description="Bold and simple", category="Hot"),
-                Coffee(name="Macchiato", price=3.2, description="Espresso with a touch of milk", category="Hot"),
-                Coffee(name="Cold Brew", price=4.5, description="Smooth cold coffee", category="Cold"),
-                Coffee(name="Iced Latte", price=4.0, description="Refreshing iced latte", category="Cold")
-            ]
-            db.session.bulk_save_objects(sample_coffees)
-            db.session.commit()
-            print("Sample coffees added to database!")
+        try:
+            db.create_all()
+            
+            # Add sample coffees if database is empty
+            if Coffee.query.count() == 0:
+                sample_coffees = [
+                    Coffee(name="Espresso", price=2.5, description="Strong and bold", category="Hot"),
+                    Coffee(name="Latte", price=3.5, description="Smooth and creamy", category="Hot"),
+                    Coffee(name="Cappuccino", price=3.0, description="Classic Italian", category="Hot"),
+                    Coffee(name="Mocha", price=4.0, description="Chocolate delight", category="Hot"),
+                    Coffee(name="Americano", price=2.8, description="Bold and simple", category="Hot"),
+                    Coffee(name="Macchiato", price=3.2, description="Espresso with milk", category="Hot"),
+                    Coffee(name="Cold Brew", price=4.5, description="Smooth cold coffee", category="Cold"),
+                    Coffee(name="Iced Latte", price=4.0, description="Refreshing iced latte", category="Cold")
+                ]
+                db.session.bulk_save_objects(sample_coffees)
+                db.session.commit()
+                print("Sample coffees added to database!")
+        except Exception as e:
+            print(f"Database initialization error: {e}")
+            db.create_all()
         
         app._db_initialized = True
 
