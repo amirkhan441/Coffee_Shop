@@ -21,6 +21,13 @@
             backdrop-filter: blur(10px);
         }
 
+        .header-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
         .orders-list {
             list-style: none;
         }
@@ -32,6 +39,12 @@
             padding: 30px;
             margin-bottom: 20px;
             border: 1px solid rgba(212, 165, 116, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.3);
         }
 
         .order-header {
@@ -49,9 +62,32 @@
             font-weight: 600;
         }
 
+        .order-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-confirmed {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .status-delivered {
+            background: #17a2b8;
+            color: #fff;
+        }
+
         .order-date {
             color: #e8d5c4;
             font-size: 0.9em;
+            margin-top: 5px;
         }
 
         .order-items {
@@ -75,21 +111,13 @@
             border-top: 2px solid rgba(212, 165, 116, 0.3);
         }
 
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #d4a574 0%, #b8945f 100%);
-            color: #2c1810;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(212, 165, 116, 0.5);
+        .order-address {
+            background: rgba(212, 165, 116, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            color: #e8d5c4;
+            font-size: 0.9em;
         }
 
         .no-orders {
@@ -100,13 +128,23 @@
             color: #e8d5c4;
             font-size: 1.2em;
         }
+
+        .no-orders-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="orders-container">
         <header class="orders-header">
             <h1>📋 Order History</h1>
-            <p class="subtitle">Your past coffee orders</p>
+            <p class="subtitle">Track your coffee orders</p>
+            <div class="header-links">
+                <a href="{{ url_for('index') }}" class="history-btn">← Back to Menu</a>
+                <a href="{{ url_for('cart') }}" class="history-btn">🛒 Cart</a>
+                <a href="{{ url_for('logout') }}" class="history-btn">Logout</a>
+            </div>
         </header>
 
         {% if orders %}
@@ -114,8 +152,11 @@
             {% for order in orders %}
             <li class="order-card">
                 <div class="order-header">
-                    <span class="order-id">Order #{{ order.id }}</span>
-                    <span class="order-date">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                    <div>
+                        <span class="order-id">Order #{{ order.id }}</span>
+                        <div class="order-date">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                    </div>
+                    <span class="order-status status-{{ order.status.lower() }}">{{ order.status }}</span>
                 </div>
                 
                 <div class="order-items">
@@ -126,22 +167,29 @@
                     </div>
                     {% endfor %}
                 </div>
-                
-                <div class="order-total">
-                    Total: ${{ "%.2f"|format(order.total) }}
+
+                <div class="order-address">
+                    <strong>📍 Delivery Address:</strong><br>
+                    {{ order.delivery_address }}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(212, 165, 116, 0.3);">
+                    <span style="color: #e8d5c4;">Payment: {{ order.payment_method }}</span>
+                    <div class="order-total">
+                        Total: ${{ "%.2f"|format(order.total) }}
+                    </div>
                 </div>
             </li>
             {% endfor %}
         </ul>
         {% else %}
         <div class="no-orders">
-            <p>No orders yet. Start by ordering some delicious coffee! ☕</p>
+            <div class="no-orders-icon">📦</div>
+            <p>No orders yet!</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Start by ordering some delicious coffee!</p>
+            <a href="{{ url_for('index') }}" class="checkout-btn" style="margin-top: 30px; display: inline-block;">Browse Menu</a>
         </div>
         {% endif %}
-
-        <div style="text-align: center;">
-            <a href="/" class="back-link">← Back to Menu</a>
-        </div>
     </div>
 </body>
 </html>

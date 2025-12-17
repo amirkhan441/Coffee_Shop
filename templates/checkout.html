@@ -3,106 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmed - Coffee Shop</title>
+    <title>Checkout - Coffee Shop</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        .success-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 50px 60px;
-            text-align: center;
-            border: 3px solid #d4a574;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            animation: popIn 0.4s ease-out;
-        }
-
-        @keyframes popIn {
-            0% {
-                transform: translate(-50%, -50%) scale(0.7);
-                opacity: 0;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .success-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: bounce 0.6s ease-in-out;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .success-title {
-            font-size: 2.5em;
-            color: #d4a574;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .success-message {
-            font-size: 1.5em;
-            color: #e8d5c4;
-            margin-bottom: 40px;
-        }
-
-        .total-amount {
-            font-size: 2em;
-            color: #f4d6a5;
-            font-weight: 700;
-            margin-bottom: 30px;
-        }
-
-        .back-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #d4a574 0%, #b8945f 100%);
-            color: #2c1810;
-            padding: 15px 40px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.2em;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
-        }
-
-        .back-btn:hover {
-            transform: scale(1.08);
-            box-shadow: 0 8px 30px rgba(212, 165, 116, 0.6);
-            background: linear-gradient(135deg, #e0b685 0%, #d4a574 100%);
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 999;
-        }
-    </style>
 </head>
 <body>
-    <div class="overlay"></div>
-    <div class="success-popup">
-        <div class="success-icon">✓</div>
-        <h1 class="success-title">Order Placed Successfully!</h1>
-        <p class="success-message">Your delicious coffee is being prepared</p>
-        <div class="total-amount">Total: ${{ total }}</div>
-        <a href="/" class="back-btn">← Back to Menu</a>
-        <a href="/orders" class="back-btn" style="margin-left: 15px; background: linear-gradient(135deg, #6b4423 0%, #4a2c1a 100%); color: #d4a574;">View Order History</a>
+    <div class="container">
+        <header>
+            <h1>📦 Checkout</h1>
+            <p class="subtitle">Complete your order</p>
+            <a href="{{ url_for('cart') }}" class="history-btn">← Back to Cart</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="checkout-container">
+            <div class="checkout-left">
+                <h2>Order Summary</h2>
+                <div class="order-summary">
+                    {% for item in cart_items %}
+                    <div class="summary-item">
+                        <span>{{ item.coffee.name }} × {{ item.quantity }}</span>
+                        <span>${{ "%.2f"|format(item.subtotal()) }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="summary-total">
+                        <strong>Total:</strong>
+                        <strong>${{ "%.2f"|format(total) }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-right">
+                <h2>Delivery Details</h2>
+                <form method="POST" class="checkout-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group">
+                        {{ form.delivery_address.label }}
+                        {{ form.delivery_address(class="form-control", rows="4", placeholder="Enter your complete delivery address") }}
+                        {% if form.delivery_address.errors %}
+                            <span class="error">{{ form.delivery_address.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method" value="COD" checked>
+                                <span>💵 Cash on Delivery</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method" value="Online">
+                                <span>💳 Online Payment (Coming Soon)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.submit(class="btn-submit checkout-submit") }}
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 </html>

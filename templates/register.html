@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Coffee Shop</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1>☕ Join Us!</h1>
+            <p class="auth-subtitle">Create your account</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" class="auth-form">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control", placeholder="johndoe") }}
+                    {% if form.username.errors %}
+                        <span class="error">{{ form.username.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control", placeholder="your@email.com") }}
+                    {% if form.email.errors %}
+                        <span class="error">{{ form.email.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.full_name.label }}
+                    {{ form.full_name(class="form-control", placeholder="John Doe") }}
+                    {% if form.full_name.errors %}
+                        <span class="error">{{ form.full_name.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.phone.label }}
+                    {{ form.phone(class="form-control", placeholder="9876543210") }}
+                    {% if form.phone.errors %}
+                        <span class="error">{{ form.phone.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control", placeholder="Minimum 6 characters") }}
+                    {% if form.password.errors %}
+                        <span class="error">{{ form.password.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="form-control", placeholder="Re-enter password") }}
+                    {% if form.confirm_password.errors %}
+                        <span class="error">{{ form.confirm_password.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.submit(class="btn-submit") }}
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+                <p><a href="{{ url_for('index') }}">← Back to Menu</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

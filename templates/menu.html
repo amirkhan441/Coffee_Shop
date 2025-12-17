@@ -3,36 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Shop</title>
+    <title>Coffee Shop - Menu</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>☕ Coffee Menu</h1>
-            <p class="subtitle">Freshly brewed, lovingly served</p>
-            <a href="/orders" class="history-btn">📋 Order History</a>
+            <div class="header-top">
+                <div class="logo">
+                    <h1>☕ Coffee Menu</h1>
+                    <p class="subtitle">Freshly brewed, lovingly served</p>
+                </div>
+                <div class="header-actions">
+                    {% if current_user.is_authenticated %}
+                        <span class="welcome-text">Hi, {{ current_user.full_name }}!</span>
+                        <a href="{{ url_for('cart') }}" class="cart-btn">
+                            🛒 Cart 
+                            {% if cart_count > 0 %}
+                            <span class="cart-badge">{{ cart_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('view_orders') }}" class="history-btn">📋 Orders</a>
+                        <a href="{{ url_for('logout') }}" class="history-btn">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="history-btn">Login</a>
+                        <a href="{{ url_for('register') }}" class="history-btn signup-btn">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
         </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <ul class="menu-grid">
             {% for coffee in menu %}
             <li class="menu-item">
                 <div class="item-header">
                     <span class="item-name">{{ coffee.name }}</span>
-                    <span class="item-price">${{ coffee.price }}</span>
+                    <span class="item-price">${{ "%.2f"|format(coffee.price) }}</span>
                 </div>
-                <a href="/add/{{ coffee.id }}" class="add-btn">Add to Order</a>
+                {% if coffee.description %}
+                <p class="item-description">{{ coffee.description }}</p>
+                {% endif %}
+                <span class="item-category">{{ coffee.category }}</span>
+                {% if current_user.is_authenticated %}
+                    <a href="/add/{{ coffee.id }}" class="add-btn">Add to Cart</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="add-btn">Login to Order</a>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
-
-        <div class="checkout-section">
-            <div class="total">
-                <span class="total-label">Order Total</span>
-                ${{ order.total() }}
-            </div>
-            <a href="/checkout" class="checkout-btn">Proceed to Checkout →</a>
-        </div>
     </div>
 </body>
 </html>
