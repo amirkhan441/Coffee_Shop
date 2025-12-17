@@ -1,9 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, session
 from models import db, Coffee, Order, OrderItem, Cart
-from config import Config
+from config import Config, ProductionConfig, DevelopmentConfig
+import os
 
 app = Flask(__name__, static_folder='static')
-app.config.from_object(Config)
+
+# Environment-based config
+if os.getenv('FLASK_ENV') == 'production':
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(DevelopmentConfig)
 
 # Initialize database
 db.init_app(app)
@@ -11,9 +17,26 @@ db.init_app(app)
 # Create a global cart object
 cart = Cart()
 
+# Database initialization - PRODUCTION MEIN BHI RUN HOGA
+with app.app_context():
+    db.create_all()
+    # Add sample coffees if database is empty
+    if Coffee.query.count() == 0:
+        sample_coffees = [
+            Coffee(name="Espresso", price=2.5),
+            Coffee(name="Latte", price=3.5),
+            Coffee(name="Cappuccino", price=3.0),
+            Coffee(name="Mocha", price=4.0),
+            Coffee(name="Americano", price=2.8),
+            Coffee(name="Macchiato", price=3.2)
+        ]
+        db.session.bulk_save_objects(sample_coffees)
+        db.session.commit()
+        print("Sample coffees added to database!")
+
 @app.route("/")
 def index():
-    menu = Coffee.query.all()  # Database se menu items lenge
+    menu = Coffee.query.all()
     return render_template("menu.html", menu=menu, order=cart)
 
 @app.route("/add/<int:item_id>")
@@ -27,13 +50,11 @@ def checkout():
     if not cart.items:
         return redirect(url_for("index"))
     
-    # Create new order
     total = cart.total()
     new_order = Order(total=total)
     db.session.add(new_order)
     db.session.flush()
     
-    # Add order items
     for item in cart.get_items():
         order_item = OrderItem(
             order_id=new_order.id,
@@ -43,10 +64,7 @@ def checkout():
         )
         db.session.add(order_item)
     
-    # Commit transaction
     db.session.commit()
-    
-    # Clear cart
     order_total = total
     cart.clear()
     
@@ -57,25 +75,6 @@ def view_orders():
     orders = Order.query.order_by(Order.created_at.desc()).all()
     return render_template("orders.html", orders=orders)
 
-# Database initialization
-def init_db():
-    with app.app_context():
-        db.create_all()
-        
-        # Add sample coffees if database is empty
-        if Coffee.query.count() == 0:
-            sample_coffees = [
-                Coffee(name="Espresso", price=2.5),
-                Coffee(name="Latte", price=3.5),
-                Coffee(name="Cappuccino", price=3.0),
-                Coffee(name="Mocha", price=4.0),
-                Coffee(name="Americano", price=2.8),
-                Coffee(name="Macchiato", price=3.2)
-            ]
-            db.session.bulk_save_objects(sample_coffees)
-            db.session.commit()
-            print("Sample coffees added to database!")
-
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
